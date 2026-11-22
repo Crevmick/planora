@@ -1,0 +1,15 @@
+/**
+ * Operational HTTP error with status code and optional structured details.
+ */
+export class AppError extends Error {
+  public readonly statusCode: number;
+  public readonly details?: unknown;
+
+  constructor(message: string, statusCode = 500, details?: unknown) {
+    super(message);
+    this.name = 'AppError';
+    this.statusCode = statusCode;
+    this.details = details;
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
