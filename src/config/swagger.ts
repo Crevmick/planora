@@ -24,6 +24,7 @@ const options: Options = {
       { name: '4. Projects', description: 'Create, list, update, and delete user projects' },
       { name: '5. Tasks', description: 'Create, list, update, complete, and delete tasks' },
       { name: '6. Profile', description: 'View and update profile details and avatar photo' },
+      { name: '7. Dashboard', description: 'Dashboard greeting and task completion metrics' },
       { name: 'Health', description: 'Server and database status' },
     ],
     servers: [

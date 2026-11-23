@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
 import healthRoutes from './health.routes.js';
 import profileRoutes from './profile.routes.js';
 import projectRoutes from './project.routes.js';
@@ -12,5 +13,6 @@ router.use('/auth', authRoutes);
 router.use('/projects', projectRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/profile', profileRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 export default router;
