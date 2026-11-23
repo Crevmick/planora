@@ -5,7 +5,11 @@ export const authRateLimiter = rateLimit({
   max: 25,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many authentication requests, please try again later.' },
+  message: {
+    success: false,
+    code: 'RATE_LIMITED',
+    message: 'Too many authentication requests, please try again later.',
+  },
 });
 
 export const otpRateLimiter = rateLimit({
@@ -13,5 +17,9 @@ export const otpRateLimiter = rateLimit({
   max: 6,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many code requests or attempts, please try again later.' },
+  message: {
+    success: false,
+    code: 'RATE_LIMITED',
+    message: 'Too many code requests or attempts, please try again later.',
+  },
 });
