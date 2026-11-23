@@ -88,13 +88,19 @@ export async function signUp(input: {
     emailVerificationAttempts: 0,
   });
 
-  const tokens = await issueSessionTokens(user);
   if (env.RESEND_API_KEY) {
-    await sendEmailVerificationCodeEmail(user.email, code, user.name);
+    try {
+      await sendEmailVerificationCodeEmail(user.email, code, user.name);
+    } catch (err) {
+      // Roll back the newly created user if sending the verification email fails.
+      await User.deleteOne({ _id: user._id });
+      throw err;
+    }
   } else {
     console.warn(`RESEND_API_KEY is not set; skipping verification OTP email for ${user.email}`);
   }
 
+  const tokens = await issueSessionTokens(user);
   return { user: user.toJSON(), tokens };
 }
 
