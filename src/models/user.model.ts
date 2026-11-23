@@ -11,6 +11,8 @@ export interface IRefreshTokenEntry {
 export interface IUser extends Document {
   name?: string;
   email: string;
+  avatarUrl?: string;
+  avatarPublicId?: string;
   passwordHash?: string;
   authProvider: AuthProvider;
   providerId?: string;
@@ -22,6 +24,8 @@ export interface IUser extends Document {
   resetCodeHash?: string;
   resetCodeExpiresAt?: Date;
   resetCodeAttempts: number;
+  deletedAt?: Date;
+  scheduledDeletionAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +53,14 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
       index: true,
+    },
+    avatarUrl: {
+      type: String,
+      trim: true,
+    },
+    avatarPublicId: {
+      type: String,
+      select: false,
     },
     passwordHash: {
       type: String,
@@ -102,12 +114,22 @@ const userSchema = new Schema<IUser>(
       default: 0,
       select: false,
     },
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
+    scheduledDeletionAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
     toJSON: {
       transform(_doc, ret: Record<string, unknown>) {
         delete ret.passwordHash;
+        delete ret.avatarPublicId;
         delete ret.refreshTokens;
         delete ret.emailVerificationCodeHash;
         delete ret.emailVerificationExpiresAt;

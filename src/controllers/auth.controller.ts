@@ -133,6 +133,22 @@ export async function resetPassword(
   }
 }
 
+export async function changePassword(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const tokens = await authService.changePassword(req.user!.userId, req.body);
+    res.status(200).json({
+      message: 'Password updated successfully',
+      tokens,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getMe(
   req: AuthenticatedRequest,
   res: Response,

@@ -21,6 +21,9 @@ const options: Options = {
       { name: '1. Sign Up & Email Verification', description: 'Create account and verify email with 4-digit OTP' },
       { name: '2. Sign In & Session', description: 'Email/password, Google/Apple OAuth, refresh, and logout' },
       { name: '3. Password Reset', description: 'Forgot password, 4-digit reset code, and new password' },
+      { name: '4. Projects', description: 'Create, list, update, and delete user projects' },
+      { name: '5. Tasks', description: 'Create, list, update, complete, and delete tasks' },
+      { name: '6. Profile', description: 'View and update profile details and avatar photo' },
       { name: 'Health', description: 'Server and database status' },
     ],
     servers: [

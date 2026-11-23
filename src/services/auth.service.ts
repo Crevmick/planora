@@ -106,6 +106,10 @@ export async function login(input: { email: string; password: string }): Promise
     throw new AppError('Invalid email or password', 401);
   }
 
+  if (user.deletedAt) {
+    throw new AppError('This account has been deleted', 403);
+  }
+
   const isMatch = await bcrypt.compare(input.password, user.passwordHash);
   if (!isMatch) {
     throw new AppError('Invalid email or password', 401);
@@ -123,6 +127,9 @@ export async function oauthLogin(input: {
   const profile = await verifyOAuthIdToken(input.provider, input.idToken);
 
   let user = await User.findOne({ email: profile.email }).select('+refreshTokens');
+  if (user?.deletedAt) {
+    throw new AppError('This account has been deleted', 403);
+  }
   if (!user) {
     user = await User.create({
       name: input.name?.trim() || profile.name,
@@ -149,7 +156,7 @@ export async function refreshSession(refreshToken: string): Promise<AuthResponse
   const tokenHash = hashToken(refreshToken);
 
   const user = await User.findById(decoded.sub).select('+refreshTokens');
-  if (!user) {
+  if (!user || user.deletedAt) {
     throw new AppError('User not found', 401);
   }
 
@@ -266,8 +273,8 @@ export async function forgotPassword(emailInput: string): Promise<void> {
     '+resetCodeHash +resetCodeExpiresAt +resetCodeAttempts'
   );
 
-  // Return silently when the email is not found to prevent account enumeration.
-  if (!user) {
+  // Return silently when the email is not found or deleted to prevent account enumeration.
+  if (!user || user.deletedAt) {
     return;
   }
 
@@ -340,6 +347,41 @@ export async function resetPassword(input: {
   // Revoke all existing sessions after a password reset.
   user.refreshTokens = [];
   await user.save();
+}
+
+export async function changePassword(
+  userId: string,
+  input: {
+    currentPassword: string;
+    newPassword: string;
+  }
+): Promise<AuthTokens> {
+  const user = await User.findById(userId).select('+passwordHash +refreshTokens');
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  if (!user.passwordHash) {
+    throw new AppError(
+      'This account uses social sign-in and does not have a password set',
+      400
+    );
+  }
+
+  const isCurrentValid = await bcrypt.compare(input.currentPassword, user.passwordHash);
+  if (!isCurrentValid) {
+    throw new AppError('Current password is incorrect', 401);
+  }
+
+  const isSameAsCurrent = await bcrypt.compare(input.newPassword, user.passwordHash);
+  if (isSameAsCurrent) {
+    throw new AppError('New password must be different from your current password', 400);
+  }
+
+  user.passwordHash = await bcrypt.hash(input.newPassword, env.BCRYPT_SALT_ROUNDS);
+  // Revoke all existing sessions and issue a fresh token pair for this device.
+  user.refreshTokens = [];
+  return issueSessionTokens(user);
 }
 
 export async function getCurrentUser(userId: string): Promise<ReturnType<IUser['toJSON']>> {

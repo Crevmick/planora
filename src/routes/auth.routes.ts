@@ -4,6 +4,7 @@ import { requireAuth } from '../middlewares/auth.middleware.js';
 import { authRateLimiter, otpRateLimiter } from '../middlewares/rateLimit.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import {
+  changePasswordValidator,
   forgotPasswordValidator,
   loginValidator,
   logoutValidator,
@@ -350,6 +351,49 @@ router.post(
   authRateLimiter,
   validate(resetPasswordValidator),
   authController.resetPassword
+);
+
+/**
+ * @openapi
+ * /api/auth/change-password:
+ *   post:
+ *     tags:
+ *       - 3. Password Reset
+ *     summary: Change password for authenticated user
+ *     description: Verifies current password, prevents password reuse, revokes all prior refresh tokens, and returns a fresh token pair.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword, confirmPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: OldPassword123
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPassword123
+ *               confirmPassword:
+ *                 type: string
+ *                 example: NewPassword123
+ *     responses:
+ *       200:
+ *         description: Password updated successfully (returns fresh tokens)
+ *       400:
+ *         description: Validation failed, social-only account, or password reused
+ *       401:
+ *         description: Unauthorized or incorrect current password
+ */
+router.post(
+  '/change-password',
+  requireAuth,
+  authRateLimiter,
+  validate(changePasswordValidator),
+  authController.changePassword
 );
 
 export default router;

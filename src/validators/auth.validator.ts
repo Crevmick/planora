@@ -110,6 +110,20 @@ export const resetPasswordValidator: ValidationChain[] = [
     .withMessage('Passwords do not match'),
 ];
 
+export const changePasswordValidator: ValidationChain[] = [
+  body('currentPassword')
+    .isString()
+    .notEmpty()
+    .withMessage('Current password is required'),
+  strongPasswordRule('newPassword'),
+  body('confirmPassword')
+    .isString()
+    .notEmpty()
+    .withMessage('Confirm password is required')
+    .custom((value, { req }) => value === req.body.newPassword)
+    .withMessage('Passwords do not match'),
+];
+
 export const sendEmailOtpValidator: ValidationChain[] = [
   body('email')
     .trim()
