@@ -9,6 +9,8 @@ export interface IRefreshTokenEntry {
 }
 
 export interface IUser extends Document {
+  firstName?: string;
+  lastName?: string;
   name?: string;
   email: string;
   avatarUrl?: string;
@@ -41,6 +43,16 @@ const refreshTokenSchema = new Schema<IRefreshTokenEntry>(
 
 const userSchema = new Schema<IUser>(
   {
+    firstName: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
     name: {
       type: String,
       trim: true,

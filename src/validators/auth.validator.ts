@@ -13,12 +13,18 @@ function strongPasswordRule(field: string): ValidationChain {
 }
 
 export const signUpValidator: ValidationChain[] = [
-  body('name')
-    .optional()
+  body('firstName')
     .isString()
+    .withMessage('First name must be a string')
     .trim()
-    .isLength({ min: 1, max: 100 })
-    .withMessage('Name must be between 1 and 100 characters'),
+    .isLength({ min: 1, max: 50 })
+    .withMessage('First name must be between 1 and 50 characters'),
+  body('lastName')
+    .isString()
+    .withMessage('Last name must be a string')
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Last name must be between 1 and 50 characters'),
   body('email')
     .trim()
     .isEmail()

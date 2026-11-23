@@ -64,7 +64,8 @@ async function issueSessionTokens(user: IUser): Promise<AuthTokens> {
 }
 
 export async function signUp(input: {
-  name?: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }): Promise<AuthResponse> {
@@ -74,11 +75,17 @@ export async function signUp(input: {
     throw new AppError('An account with this email already exists', 409);
   }
 
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  const fullName = `${firstName} ${lastName}`.trim();
+
   const passwordHash = await bcrypt.hash(input.password, env.BCRYPT_SALT_ROUNDS);
   const { code, codeHash, expiresAt } = await createOtpChallenge();
 
   const user = await User.create({
-    name: input.name?.trim(),
+    firstName,
+    lastName,
+    name: fullName,
     email,
     passwordHash,
     authProvider: 'local',

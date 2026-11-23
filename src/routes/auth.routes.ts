@@ -32,11 +32,14 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, password, confirmPassword]
+ *             required: [firstName, lastName, email, password, confirmPassword]
  *             properties:
- *               name:
+ *               firstName:
  *                 type: string
  *                 example: Adaeze
+ *               lastName:
+ *                 type: string
+ *                 example: Okafor
  *               email:
  *                 type: string
  *                 format: email
