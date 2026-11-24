@@ -10,14 +10,23 @@ import { notFoundHandler, errorHandler } from './middlewares/error.middleware.js
 
 const app = express();
 
+const allowedOrigins =
+  env.CORS_ORIGIN.trim() === '*'
+    ? true
+    : env.CORS_ORIGIN.split(',')
+        .map((o) => o.trim().replace(/\/+$/, ''))
+        .filter(Boolean);
+
 app.set('trust proxy', 1);
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 app.use(
   cors({
-    origin:
-      env.CORS_ORIGIN === '*'
-        ? '*'
-        : env.CORS_ORIGIN.split(',').map((o) => o.trim().replace(/\/+$/, '')),
+    origin: allowedOrigins,
+    credentials: true,
   })
 );
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
